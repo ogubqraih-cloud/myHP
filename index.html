@@ -1508,61 +1508,19 @@
       isSending = true;
       sendBtn.disabled = true;
 
-      // SSE でストリーミング受信
+      // JSON レスポンスを受信
       fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: history }),
-      }).then(res => {
-        if (!res.ok) throw new Error('サーバーエラー');
-
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
-        let aiText = '';
-        let bubble = null;
-
-        // タイピング表示を AIバブルに差し替え
+      }).then(res => res.json()).then(data => {
         typingEl.remove();
-        const msgEl = document.createElement('div');
-        msgEl.className = 'chat-msg chat-msg--ai';
-        bubble = document.createElement('div');
-        bubble.className = 'chat-bubble';
-        bubble.textContent = '…';
-        msgEl.appendChild(bubble);
-        messages.appendChild(msgEl);
-        scrollToBottom();
-
-        function pump() {
-          return reader.read().then(({ done, value }) => {
-            if (done) return;
-
-            const chunk = decoder.decode(value, { stream: true });
-            const lines = chunk.split('\n');
-            for (const line of lines) {
-              if (!line.startsWith('data: ')) continue;
-              const data = line.slice(6).trim();
-              if (data === '[DONE]') return;
-              try {
-                const parsed = JSON.parse(data);
-                if (parsed.error) {
-                  bubble.textContent = parsed.error;
-                  return;
-                }
-                if (parsed.text) {
-                  aiText += parsed.text;
-                  bubble.textContent = aiText;
-                  scrollToBottom();
-                }
-              } catch (_) { /* 不完全なチャンクは無視 */ }
-            }
-            return pump();
-          });
+        if (data.error) {
+          appendMessage('ai', data.error);
+        } else {
+          appendMessage('ai', data.text);
+          history.push({ role: 'assistant', content: data.text });
         }
-
-        return pump().then(() => {
-          if (aiText) history.push({ role: 'assistant', content: aiText });
-        });
-
       }).catch(err => {
         typingEl.remove();
         appendMessage('ai', 'エラーが発生しました。しばらくしてから再度お試しください。');
