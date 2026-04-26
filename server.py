@@ -1,22 +1,11 @@
 import os
 import json
 from pathlib import Path
+from dotenv import load_dotenv
 from flask import Flask, request, Response, send_from_directory
 import anthropic
 
-# .env を手動読み込み
-env_path = Path(__file__).parent / ".env"
-if env_path.exists():
-    for line in env_path.read_text().splitlines():
-        line = line.strip()
-        if not line or line.startswith("#"):
-            continue
-        idx = line.find("=")
-        if idx == -1:
-            continue
-        key, val = line[:idx].strip(), line[idx+1:].strip().strip("\"'")
-        if key and key not in os.environ:
-            os.environ[key] = val
+load_dotenv()
 
 client = anthropic.Anthropic()
 app = Flask(__name__, static_folder=".", static_url_path="")
