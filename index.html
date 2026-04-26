@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>株式会社TechVision | AIコンサルティング・IT支援</title>
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue-deep:    #0d1f6e;
+      --blue-mid:     #1a4fd4;
+      --blue-light:   #4a90e2;
+      --blue-pale:    #c8dcf8;
+      --indigo:       #3730a3;
+      --cyan:         #06b6d4;
+      --bg:           #f0f4ff;
+      --surface:      rgba(255,255,255,0.78);
+      --surface-dark: rgba(13,31,110,0.06);
+      --text:         #0d1f4e;
+      --muted:        #4a5f8a;
+      --border:       rgba(74,144,226,0.22);
+      --border-light: rgba(74,144,226,0.12);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Nunito', 'Zen Maru Gothic', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    /* ────────────────────────────
+       背景：幾何学グラデーション
+    ──────────────────────────── */
+    .bg-scene {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background: linear-gradient(145deg,
+        #ddeeff 0%,
+        #e8f0ff 30%,
+        #f0f4ff 60%,
+        #e8f2ff 100%
+      );
+    }
+
+    /* SVG 幾何学装飾 */
+    .bg-grid {
+      position: absolute;
+      inset: 0;
+      opacity: 0.045;
+      background-image:
+        linear-gradient(var(--blue-mid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--blue-mid) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    .bg-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.18;
+    }
+    .bg-orb-1 { width: 520px; height: 520px; background: var(--blue-mid); top: -160px; right: -100px; }
+    .bg-orb-2 { width: 380px; height: 380px; background: var(--cyan); bottom: 10%; left: -80px; }
+    .bg-orb-3 { width: 300px; height: 300px; background: var(--indigo); top: 40%; right: 5%; }
+
+    /* ────────────────────────────
+       ナビゲーション
+    ──────────────────────────── */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 0 clamp(20px, 5vw, 60px);
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(240,244,255,0.85);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border-light);
+      transition: box-shadow 0.3s;
+    }
+    .nav.scrolled { box-shadow: 0 4px 24px rgba(13,31,110,0.09); }
+
+    .nav-logo {
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--blue-deep);
+      text-decoration: none;
+      letter-spacing: 0.02em;
+    }
+    .nav-logo span { color: var(--blue-mid); }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--blue-mid); }
+
+    .nav-cta {
+      padding: 8px 20px;
+      background: var(--blue-mid);
+      color: #fff !important;
+      border-radius: 999px;
+      font-size: 0.85rem !important;
+      transition: background 0.2s, transform 0.18s !important;
+    }
+    .nav-cta:hover { background: var(--blue-deep) !important; transform: translateY(-2px); }
+
+    /* ハンバーガーメニュー */
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 4px;
+      background: none;
+      border: none;
+    }
+    .nav-hamburger span {
+      display: block;
+      width: 24px; height: 2px;
+      background: var(--blue-deep);
+      border-radius: 2px;
+      transition: transform 0.3s, opacity 0.3s;
+    }
+    .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-hamburger.open span:nth-child(2) { opacity: 0; }
+    .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* モバイルメニュー */
+    .nav-mobile {
+      display: none;
+      position: fixed;
+      top: 64px; left: 0; right: 0;
+      background: rgba(240,244,255,0.97);
+      backdrop-filter: blur(14px);
+      padding: 24px clamp(20px, 5vw, 60px);
+      flex-direction: column;
+      gap: 20px;
+      z-index: 99;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .nav-mobile.open { display: flex; }
+    .nav-mobile a {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    /* ────────────────────────────
+       メインラッパー
+    ──────────────────────────── */
+    main {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      padding-top: 64px;
+    }
+
+    /* セクション共通 */
+    .section {
+      padding: clamp(72px, 10vw, 120px) clamp(20px, 8vw, 80px);
+      max-width: 1160px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--blue-mid);
+      margin-bottom: 14px;
+    }
+    .section-label::before {
+      content: '';
+      display: block;
+      width: 22px; height: 2px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--blue-mid), var(--cyan));
+    }
+
+    .section-title {
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.35;
+      margin-bottom: 12px;
+    }
+
+    .section-desc {
+      font-size: 1rem;
+      color: var(--muted);
+      line-height: 1.85;
+      max-width: 560px;
+      margin-bottom: 52px;
+    }
+
+    /* ────────────────────────────
+       Hero セクション
+    ──────────────────────────── */
+    .hero {
+      min-height: calc(100vh - 64px);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: 40px;
+      padding: clamp(100px, 14vw, 180px) clamp(20px, 8vw, 80px);
+      max-width: 1160px;
+      margin: 0 auto;
+    }
+
+    .hero-content { display: flex; flex-direction: column; gap: 24px; }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      background: rgba(26,79,212,0.1);
+      border: 1.5px solid rgba(26,79,212,0.25);
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--blue-mid);
+      width: fit-content;
+    }
+    .hero-badge::before { content: '🤖'; font-size: 0.9rem; }
+
+    .hero-title {
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 700;
+      line-height: 1.25;
+      color: var(--text);
+    }
+    .hero-title em {
+      font-style: normal;
+      background: linear-gradient(135deg, var(--blue-mid), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: 1.05rem;
+      color: var(--muted);
+      line-height: 1.9;
+      max-width: 480px;
+    }
+
+    .cta-group {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .btn {
+      padding: 13px 28px;
+      border-radius: 999px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 0.18s, box-shadow 0.18s;
+      display: inline-block;
+    }
+    .btn:hover { transform: translateY(-3px); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--blue-mid), var(--indigo));
+      color: #fff;
+      border: none;
+      box-shadow: 0 6px 24px rgba(26,79,212,0.35);
+    }
+    .btn-primary:hover { box-shadow: 0 12px 36px rgba(26,79,212,0.5); }
+
+    .btn-outline {
+      background: rgba(255,255,255,0.8);
+      color: var(--blue-mid);
+      border: 2px solid rgba(26,79,212,0.35);
+      backdrop-filter: blur(6px);
+    }
+    .btn-outline:hover { background: rgba(255,255,255,0.97); border-color: var(--blue-mid); }
+
+    /* ヒーロー右SVGイラスト */
+    .hero-visual {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .hero-svg-wrap {
+      width: min(480px, 100%);
+      aspect-ratio: 1;
+      position: relative;
+    }
+    .hero-svg-wrap svg { width: 100%; height: 100%; }
+
+    /* SVGアニメーション */
+    @keyframes float-node {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-12px); }
+    }
+    @keyframes pulse-ring {
+      0%,100% { opacity: 0.3; r: 38; }
+      50%      { opacity: 0.7; r: 44; }
+    }
+    @keyframes spin-slow {
+      to { transform: rotate(360deg); transform-origin: center; }
+    }
+    .node-center { animation: float-node 4s ease-in-out infinite; }
+    .node-a { animation: float-node 4s ease-in-out infinite; animation-delay: -1.3s; }
+    .node-b { animation: float-node 4s ease-in-out infinite; animation-delay: -2.6s; }
+    .node-c { animation: float-node 4s ease-in-out infinite; animation-delay: -0.8s; }
+    .pulse-ring { animation: pulse-ring 2.5s ease-in-out infinite; }
+    .orbit-ring {
+      transform-origin: 240px 240px;
+      animation: spin-slow 12s linear infinite;
+    }
+
+    /* ────────────────────────────
+       Services セクション
+    ──────────────────────────── */
+    .services-bg {
+      background: linear-gradient(180deg, rgba(13,31,110,0.04) 0%, rgba(26,79,212,0.07) 100%);
+      border-top: 1px solid var(--border-light);
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+
+    .service-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 24px;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 4px 24px rgba(13,31,110,0.08);
+      transition: transform 0.22s, box-shadow 0.22s;
+    }
+    .service-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 24px 56px rgba(13,31,110,0.16);
+    }
+
+    /* カード上部カラーバー */
+    .service-card-top {
+      height: 6px;
+    }
+    .service-card--ai   .service-card-top { background: linear-gradient(90deg, #1a4fd4, #06b6d4); }
+    .service-card--it   .service-card-top { background: linear-gradient(90deg, #3730a3, #7c3aed); }
+    .service-card--data .service-card-top { background: linear-gradient(90deg, #0891b2, #0d9488); }
+
+    .service-card-body {
+      padding: 32px 28px 36px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      flex: 1;
+    }
+
+    .service-icon {
+      width: 64px; height: 64px;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+    }
+    .service-card--ai   .service-icon { background: linear-gradient(135deg, #dbeafe, #bfdbfe); border: 1.5px solid rgba(26,79,212,0.2); }
+    .service-card--it   .service-icon { background: linear-gradient(135deg, #ede9fe, #ddd6fe); border: 1.5px solid rgba(124,58,237,0.2); }
+    .service-card--data .service-icon { background: linear-gradient(135deg, #cffafe, #a5f3fc); border: 1.5px solid rgba(8,145,178,0.2); }
+
+    .service-title {
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-size: 1.18rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .service-desc {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.85;
+    }
+
+    .service-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: auto;
+    }
+    .service-tag {
+      font-size: 0.74rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 999px;
+    }
+    .service-card--ai   .service-tag { background: rgba(26,79,212,0.08);  color: #1a4fd4; border: 1px solid rgba(26,79,212,0.18); }
+    .service-card--it   .service-tag { background: rgba(124,58,237,0.08); color: #6d28d9; border: 1px solid rgba(124,58,237,0.18); }
+    .service-card--data .service-tag { background: rgba(8,145,178,0.08);  color: #0891b2; border: 1px solid rgba(8,145,178,0.18); }
+
+    /* ────────────────────────────
+       実績セクション
+    ──────────────────────────── */
+    .numbers-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-bottom: 60px;
+    }
+
+    .number-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 22px;
+      padding: 36px 24px;
+      text-align: center;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 2px 16px rgba(13,31,110,0.06);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .number-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(13,31,110,0.13);
+    }
+
+    .number-value {
+      font-family: 'Nunito', sans-serif;
+      font-size: clamp(2.4rem, 5vw, 3.2rem);
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--blue-mid), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+
+    .number-label {
+      font-size: 0.88rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    /* 事例カード */
+    .cases-title {
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 24px;
+    }
+
+    .cases-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .case-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 22px;
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 2px 16px rgba(13,31,110,0.06);
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    }
+    .case-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(13,31,110,0.13);
+      border-color: var(--blue-light);
+    }
+
+    .case-industry {
+      display: inline-block;
+      font-size: 0.74rem;
+      font-weight: 700;
+      padding: 3px 12px;
+      border-radius: 999px;
+      background: rgba(6,182,212,0.1);
+      color: #0891b2;
+      border: 1px solid rgba(6,182,212,0.25);
+      width: fit-content;
+    }
+
+    .case-title {
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .case-result {
+      margin-top: auto;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--blue-mid);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .case-result::before { content: '✓'; color: var(--cyan); }
+
+    /* ────────────────────────────
+       Contact セクション
+    ──────────────────────────── */
+    .contact-bg {
+      background: linear-gradient(145deg, rgba(26,79,212,0.06), rgba(55,48,163,0.06));
+      border-top: 1px solid var(--border-light);
+    }
+
+    .contact-wrap {
+      max-width: 680px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .contact-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 28px;
+      padding: clamp(40px, 6vw, 64px) clamp(28px, 5vw, 56px);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 4px 40px rgba(13,31,110,0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    .contact-card::before {
+      content: '';
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 240px; height: 240px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(6,182,212,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .contact-heading {
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-size: clamp(1.4rem, 3vw, 1.8rem);
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+
+    .contact-sub {
+      font-size: 0.95rem;
+      color: var(--muted);
+      line-height: 1.85;
+      margin-bottom: 32px;
+    }
+
+    .contact-form {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      text-align: left;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label {
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .form-input, .form-textarea {
+      padding: 11px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 0.92rem;
+      color: var(--text);
+      background: rgba(255,255,255,0.85);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+    .form-input:focus, .form-textarea:focus {
+      border-color: var(--blue-light);
+      box-shadow: 0 0 0 3px rgba(74,144,226,0.15);
+    }
+    .form-textarea { resize: vertical; min-height: 120px; }
+
+    .form-submit {
+      padding: 14px 32px;
+      background: linear-gradient(135deg, var(--blue-mid), var(--indigo));
+      color: #fff;
+      border: none;
+      border-radius: 999px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 6px 24px rgba(26,79,212,0.35);
+      transition: transform 0.18s, box-shadow 0.18s;
+      margin-top: 6px;
+    }
+    .form-submit:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 36px rgba(26,79,212,0.5);
+    }
+
+    /* ────────────────────────────
+       フッター
+    ──────────────────────────── */
+    footer {
+      position: relative;
+      z-index: 1;
+      background: var(--blue-deep);
+      color: rgba(255,255,255,0.65);
+      padding: 40px clamp(20px, 8vw, 80px);
+    }
+
+    .footer-inner {
+      max-width: 1160px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .footer-logo {
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      color: #fff;
+    }
+    .footer-logo span { color: var(--blue-pale); }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+      list-style: none;
+    }
+    .footer-links a {
+      font-size: 0.84rem;
+      color: rgba(255,255,255,0.55);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: rgba(255,255,255,0.9); }
+
+    .footer-copy { font-size: 0.8rem; }
+
+    /* ────────────────────────────
+       フェードインアニメーション
+    ──────────────────────────── */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .fade-in:nth-child(2) { transition-delay: 0.1s; }
+    .fade-in:nth-child(3) { transition-delay: 0.2s; }
+    .fade-in:nth-child(4) { transition-delay: 0.3s; }
+
+    /* ────────────────────────────
+       レスポンシブ
+    ──────────────────────────── */
+    @media (max-width: 900px) {
+      .services-grid { grid-template-columns: 1fr 1fr; }
+      .numbers-row   { grid-template-columns: 1fr 1fr; }
+      .cases-grid    { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 600px) {
+      .hero { grid-template-columns: 1fr; min-height: auto; padding-top: 40px; padding-bottom: 40px; }
+      .hero-visual { display: none; }
+      .services-grid { grid-template-columns: 1fr; }
+      .numbers-row   { grid-template-columns: 1fr; }
+      .cases-grid    { grid-template-columns: 1fr; }
+      .nav-links     { display: none; }
+      .nav-hamburger { display: flex; }
+      .footer-inner  { flex-direction: column; text-align: center; }
+      .footer-links  { flex-wrap: wrap; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- 背景装飾 -->
+<div class="bg-scene">
+  <div class="bg-grid"></div>
+  <div class="bg-orb bg-orb-1"></div>
+  <div class="bg-orb bg-orb-2"></div>
+  <div class="bg-orb bg-orb-3"></div>
+</div>
+
+<!-- ナビゲーション -->
+<nav class="nav" id="nav">
+  <a href="#" class="nav-logo">Tech<span>Vision</span></a>
+  <ul class="nav-links">
+    <li><a href="#services">サービス</a></li>
+    <li><a href="#results">実績</a></li>
+    <li><a href="#contact" class="nav-cta">お問い合わせ</a></li>
+  </ul>
+  <button class="nav-hamburger" id="hamburger" aria-label="メニュー">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- モバイルメニュー -->
+<div class="nav-mobile" id="mobileMenu">
+  <a href="#services" onclick="closeMobileMenu()">サービス</a>
+  <a href="#results" onclick="closeMobileMenu()">実績</a>
+  <a href="#contact" onclick="closeMobileMenu()">お問い合わせ</a>
+</div>
+
+<main>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-content">
+      <span class="hero-badge">AIコンサルティング・IT支援</span>
+      <h1 class="hero-title">
+        AIで、<br><em>ビジネスの課題</em>を<br>解決する。
+      </h1>
+      <p class="hero-sub">
+        コスト削減・業務効率化・意思決定支援。<br>
+        貴社の課題に合わせたAI導入を、戦略策定から実装まで伴走します。
+      </p>
+      <div class="cta-group">
+        <a href="#contact" class="btn btn-primary">無料相談を申し込む</a>
+        <a href="#services" class="btn btn-outline">サービスを見る</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <!-- AI/IT モチーフのSVGイラスト -->
+      <div class="hero-svg-wrap">
+        <svg viewBox="0 0 480 480" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="gCenter" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#4a90e2" stop-opacity="0.2"/>
+              <stop offset="100%" stop-color="#1a4fd4" stop-opacity="0"/>
+            </radialGradient>
+            <linearGradient id="gNode" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#1a4fd4"/>
+              <stop offset="100%" stop-color="#06b6d4"/>
+            </linearGradient>
+            <linearGradient id="gNodeB" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#3730a3"/>
+              <stop offset="100%" stop-color="#4a90e2"/>
+            </linearGradient>
+          </defs>
+
+          <!-- 背景円 -->
+          <circle cx="240" cy="240" r="200" fill="url(#gCenter)"/>
+
+          <!-- 軌道リング -->
+          <g class="orbit-ring">
+            <ellipse cx="240" cy="240" rx="170" ry="68" fill="none" stroke="rgba(74,144,226,0.15)" stroke-width="1.5" stroke-dasharray="8 6"/>
+          </g>
+
+          <!-- 接続ライン -->
+          <g stroke="rgba(74,144,226,0.25)" stroke-width="1.5">
+            <line x1="240" y1="240" x2="120" y2="140"/>
+            <line x1="240" y1="240" x2="360" y2="140"/>
+            <line x1="240" y1="240" x2="100" y2="300"/>
+            <line x1="240" y1="240" x2="380" y2="300"/>
+            <line x1="240" y1="240" x2="240" y2="80"/>
+          </g>
+
+          <!-- 中央ノード -->
+          <g class="node-center">
+            <circle cx="240" cy="240" r="52" fill="url(#gNode)" opacity="0.9"/>
+            <circle cx="240" cy="240" r="38" fill="rgba(255,255,255,0.12)"/>
+            <!-- CPUっぽいアイコン -->
+            <rect x="222" y="222" width="36" height="36" rx="4" fill="none" stroke="#fff" stroke-width="2.5"/>
+            <rect x="228" y="228" width="24" height="24" rx="2" fill="rgba(255,255,255,0.25)"/>
+            <line x1="230" y1="222" x2="230" y2="218" stroke="#fff" stroke-width="2"/>
+            <line x1="237" y1="222" x2="237" y2="218" stroke="#fff" stroke-width="2"/>
+            <line x1="244" y1="222" x2="244" y2="218" stroke="#fff" stroke-width="2"/>
+            <line x1="251" y1="222" x2="251" y2="218" stroke="#fff" stroke-width="2"/>
+            <line x1="230" y1="262" x2="230" y2="258" stroke="#fff" stroke-width="2"/>
+            <line x1="237" y1="262" x2="237" y2="258" stroke="#fff" stroke-width="2"/>
+            <line x1="244" y1="262" x2="244" y2="258" stroke="#fff" stroke-width="2"/>
+            <line x1="251" y1="262" x2="251" y2="258" stroke="#fff" stroke-width="2"/>
+            <line x1="222" y1="230" x2="218" y2="230" stroke="#fff" stroke-width="2"/>
+            <line x1="222" y1="237" x2="218" y2="237" stroke="#fff" stroke-width="2"/>
+            <line x1="222" y1="244" x2="218" y2="244" stroke="#fff" stroke-width="2"/>
+            <line x1="222" y1="251" x2="218" y2="251" stroke="#fff" stroke-width="2"/>
+            <line x1="262" y1="230" x2="258" y2="230" stroke="#fff" stroke-width="2"/>
+            <line x1="262" y1="237" x2="258" y2="237" stroke="#fff" stroke-width="2"/>
+            <line x1="262" y1="244" x2="258" y2="244" stroke="#fff" stroke-width="2"/>
+            <line x1="262" y1="251" x2="258" y2="251" stroke="#fff" stroke-width="2"/>
+          </g>
+
+          <!-- 周辺ノード A（左上） -->
+          <g class="node-a">
+            <circle cx="120" cy="140" r="32" fill="url(#gNodeB)" opacity="0.85"/>
+            <text x="120" y="146" text-anchor="middle" fill="#fff" font-size="18" font-family="system-ui">🧠</text>
+          </g>
+
+          <!-- 周辺ノード B（右上） -->
+          <g class="node-b">
+            <circle cx="360" cy="140" r="28" fill="url(#gNode)" opacity="0.85"/>
+            <text x="360" y="146" text-anchor="middle" fill="#fff" font-size="16" font-family="system-ui">📊</text>
+          </g>
+
+          <!-- 周辺ノード C（左下） -->
+          <g class="node-c">
+            <circle cx="100" cy="300" r="24" fill="url(#gNodeB)" opacity="0.8"/>
+            <text x="100" y="307" text-anchor="middle" fill="#fff" font-size="14" font-family="system-ui">⚙️</text>
+          </g>
+
+          <!-- 周辺ノード D（右下） -->
+          <g class="node-a">
+            <circle cx="380" cy="300" r="24" fill="url(#gNode)" opacity="0.8"/>
+            <text x="380" y="307" text-anchor="middle" fill="#fff" font-size="14" font-family="system-ui">🔗</text>
+          </g>
+
+          <!-- 上ノード -->
+          <g class="node-b">
+            <circle cx="240" cy="80" r="22" fill="url(#gNodeB)" opacity="0.8"/>
+            <text x="240" y="87" text-anchor="middle" fill="#fff" font-size="13" font-family="system-ui">☁️</text>
+          </g>
+
+          <!-- パルスリング -->
+          <circle class="pulse-ring" cx="240" cy="240" r="38" fill="none" stroke="rgba(6,182,212,0.4)" stroke-width="2"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Services -->
+  <div class="services-bg">
+    <div class="section" id="services">
+      <p class="section-label">Services</p>
+      <h2 class="section-title">提供サービス</h2>
+      <p class="section-desc">
+        AIコンサルティングからインフラ構築まで、ITに関する課題を幅広くサポートします。
+      </p>
+      <div class="services-grid">
+        <div class="service-card service-card--ai fade-in">
+          <div class="service-card-top"></div>
+          <div class="service-card-body">
+            <div class="service-icon">🧠</div>
+            <h3 class="service-title">AIコンサルティング</h3>
+            <p class="service-desc">
+              LLM・生成AI・機械学習の導入戦略を策定し、PoC設計から本番運用まで一貫してサポート。業務に最適なAI活用方法を提案します。
+            </p>
+            <div class="service-tags">
+              <span class="service-tag">LLM導入</span>
+              <span class="service-tag">AI戦略策定</span>
+              <span class="service-tag">PoC設計</span>
+              <span class="service-tag">MLOps</span>
+            </div>
+          </div>
+        </div>
+        <div class="service-card service-card--it fade-in">
+          <div class="service-card-top"></div>
+          <div class="service-card-body">
+            <div class="service-icon">🔧</div>
+            <h3 class="service-title">IT支援・DX推進</h3>
+            <p class="service-desc">
+              クラウド移行・セキュリティ強化・業務システム構築など、企業のDXを包括的に支援。現場の声に寄り添った実装を行います。
+            </p>
+            <div class="service-tags">
+              <span class="service-tag">クラウド移行</span>
+              <span class="service-tag">インフラ構築</span>
+              <span class="service-tag">セキュリティ</span>
+              <span class="service-tag">DX推進</span>
+            </div>
+          </div>
+        </div>
+        <div class="service-card service-card--data fade-in">
+          <div class="service-card-top"></div>
+          <div class="service-card-body">
+            <div class="service-icon">📊</div>
+            <h3 class="service-title">データ分析・BI構築</h3>
+            <p class="service-desc">
+              散在するデータを整理・統合し、経営判断に活かせるダッシュボードやレポート基盤を構築。データドリブンな意思決定を支援します。
+            </p>
+            <div class="service-tags">
+              <span class="service-tag">データ基盤構築</span>
+              <span class="service-tag">BIツール</span>
+              <span class="service-tag">分析設計</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="section" id="results">
+    <p class="section-label">Results</p>
+    <h2 class="section-title">実績・導入事例</h2>
+    <p class="section-desc">
+      多様な業界でのAI・IT支援を通じて、具体的な成果を生み出してきました。
+    </p>
+
+    <!-- 数字で見る成果 -->
+    <div class="numbers-row">
+      <div class="number-card fade-in">
+        <div class="number-value">
+          <span class="count-up" data-target="50" data-suffix="社+">0</span>
+        </div>
+        <div class="number-label">導入企業数</div>
+      </div>
+      <div class="number-card fade-in">
+        <div class="number-value">
+          <span class="count-up" data-target="32" data-suffix="%">0</span>
+        </div>
+        <div class="number-label">平均コスト削減率</div>
+      </div>
+      <div class="number-card fade-in">
+        <div class="number-value">
+          <span class="count-up" data-target="98" data-suffix="%">0</span>
+        </div>
+        <div class="number-label">プロジェクト完遂率</div>
+      </div>
+    </div>
+
+    <!-- プロジェクト事例 -->
+    <p class="cases-title">プロジェクト事例</p>
+    <div class="cases-grid">
+      <div class="case-card fade-in">
+        <span class="case-industry">製造業</span>
+        <h4 class="case-title">生産ライン異常検知AIの導入による品質管理コスト削減</h4>
+        <p style="font-size:0.84rem;color:var(--muted);line-height:1.7;">
+          大手製造業の品質管理工程にAI異常検知システムを導入。人手による検査コストを大幅削減。
+        </p>
+        <p class="case-result">検査コスト40%削減を実現</p>
+      </div>
+      <div class="case-card fade-in">
+        <span class="case-industry">小売・EC</span>
+        <h4 class="case-title">LLMを活用した社内ナレッジベース検索システムの構築</h4>
+        <p style="font-size:0.84rem;color:var(--muted);line-height:1.7;">
+          散在していた社内ドキュメントをRAGシステムで統合。問い合わせ対応時間を大幅短縮。
+        </p>
+        <p class="case-result">問い合わせ対応時間60%短縮</p>
+      </div>
+      <div class="case-card fade-in">
+        <span class="case-industry">金融・保険</span>
+        <h4 class="case-title">データ分析基盤の整備と経営ダッシュボードの構築</h4>
+        <p style="font-size:0.84rem;color:var(--muted);line-height:1.7;">
+          複数システムのデータを統合したBIダッシュボードを構築。月次レポート作業をほぼ自動化。
+        </p>
+        <p class="case-result">月次レポート工数80%削減</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contact -->
+  <div class="contact-bg">
+    <div class="section" id="contact">
+      <div class="contact-wrap">
+        <p class="section-label" style="justify-content:center;">Contact</p>
+        <div class="contact-card">
+          <h2 class="contact-heading">まずは無料でご相談ください</h2>
+          <p class="contact-sub">
+            AI導入・IT課題について、お気軽にお問い合わせください。<br>
+            ご状況をヒアリングし、最適なご提案をいたします。
+          </p>
+          <form class="contact-form" onsubmit="handleSubmit(event)">
+            <div class="form-group">
+              <label class="form-label" for="company">会社名</label>
+              <input class="form-input" type="text" id="company" name="company" placeholder="株式会社〇〇" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="name">お名前</label>
+              <input class="form-input" type="text" id="name" name="name" placeholder="山田 太郎" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="email">メールアドレス</label>
+              <input class="form-input" type="email" id="email" name="email" placeholder="hello@example.com" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="message">お問い合わせ内容</label>
+              <textarea class="form-textarea" id="message" name="message" placeholder="ご相談内容をご記入ください..." required></textarea>
+            </div>
+            <button type="submit" class="form-submit">送信する</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">Tech<span>Vision</span></div>
+    <ul class="footer-links">
+      <li><a href="#services">サービス</a></li>
+      <li><a href="#results">実績</a></li>
+      <li><a href="#contact">お問い合わせ</a></li>
+    </ul>
+    <p class="footer-copy">© 2026 株式会社TechVision. All rights reserved.</p>
+  </div>
+</footer>
+
+<script>
+  /* スクロール時ナビシャドウ */
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 20);
+  });
+
+  /* ハンバーガーメニュー */
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobileMenu');
+  hamburger.addEventListener('click', () => {
+    const isOpen = hamburger.classList.toggle('open');
+    mobileMenu.classList.toggle('open', isOpen);
+  });
+
+  function closeMobileMenu() {
+    hamburger.classList.remove('open');
+    mobileMenu.classList.remove('open');
+  }
+
+  /* フェードインアニメーション */
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+  /* カウントアップアニメーション */
+  function animateCountUp(el) {
+    const target = parseInt(el.dataset.target, 10);
+    const suffix = el.dataset.suffix || '';
+    const duration = 1800;
+    const startTime = performance.now();
+
+    function easeOutQuart(t) {
+      return 1 - Math.pow(1 - t, 4);
+    }
+
+    function tick(now) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const current = Math.round(easeOutQuart(progress) * target);
+      el.textContent = current + suffix;
+      if (progress < 1) requestAnimationFrame(tick);
+    }
+
+    requestAnimationFrame(tick);
+  }
+
+  const countObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        animateCountUp(entry.target);
+        countObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  document.querySelectorAll('.count-up').forEach(el => countObserver.observe(el));
+
+  /* お問い合わせフォーム送信ハンドラ（仮） */
+  function handleSubmit(e) {
+    e.preventDefault();
+    alert('お問い合わせありがとうございます。\n担当者より折り返しご連絡いたします。');
+    e.target.reset();
+  }
+</script>
+</body>
+</html>
